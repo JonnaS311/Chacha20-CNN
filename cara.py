@@ -4,37 +4,27 @@ import numpy as np
 import time
 import json
 import os
-from scipy.spatial.distance import cosine
+from scipy.spatial.distance import cosine # type: ignore
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # --- Configuración ---
 DEFAULT_MODEL_NAME = 'Facenet'
 CAMERA_INDEX = 0
-KNOWN_EMBEDDING_FILE = "mi_cara_embedding.json"
+KNOWN_EMBEDDING_FILE = "embedding.json"
 DISTANCE_METRIC = 'cosine'
+
+if not os.path.exists(KNOWN_EMBEDDING_FILE):
+    with open(KNOWN_EMBEDDING_FILE, 'w') as f:
+        json.dump({}, f, indent=4)
+
 
 # --- Variables Globales ---
 known_embedding_vector = None
 known_model_name = None
 verification_active = False
-
-# --- Cargar Embedding Conocido ---
-try:
-    with open(KNOWN_EMBEDDING_FILE, 'r') as f:
-        data = json.load(f)
-        known_embedding_vector = np.array(data['embedding'])
-        known_model_name = data['model']
-        verification_active = True
-        print(f"Embedding de referencia cargado desde '{KNOWN_EMBEDDING_FILE}' (Modelo: {known_model_name})")
-        print(f"Usando el modelo '{known_model_name}' para detección y verificación.")
-except FileNotFoundError:
-    print(f"ADVERTENCIA: No se encontró el archivo de embedding de referencia '{KNOWN_EMBEDDING_FILE}'.")
-    print(f"La verificación facial no estará activa.")
-    print(f"Presiona 's' para detectar tu cara y guardar un nuevo embedding de referencia (usando el modelo {DEFAULT_MODEL_NAME}).")
-    known_model_name = DEFAULT_MODEL_NAME
-except Exception as e:
-    print(f"Error al cargar el embedding de referencia: {e}")
-    print(f"La verificación facial no estará activa.")
-    known_model_name = DEFAULT_MODEL_NAME
+frames_to_wait = 10
+frame_counter = 0
 
 active_model_name = known_model_name if known_model_name else DEFAULT_MODEL_NAME
 
@@ -46,8 +36,6 @@ if not cap.isOpened():
 
 print(f"Cámara abierta. Modelo activo para detección: {active_model_name}.")
 print("Presiona 'q' para salir.")
-if not verification_active:
-    print("Presiona 's' cuando tu cara esté en el recuadro para GUARDAR el embedding de referencia.")
 
 prev_time = 0
 last_saved_time = 0
@@ -85,32 +73,42 @@ while True:
             current_embedding_vector = np.array(result['embedding'])
             facial_area = result['facial_area']
             x, y, w, h = facial_area['x'], facial_area['y'], facial_area['w'], facial_area['h']
-
-            if verification_active and known_embedding_vector is not None and current_embedding_vector is not None:
-                try:
-    
-                    distance_cosine = cosine(current_embedding_vector, known_embedding_vector) 
-                    
-                    print(" Coseno", distance_cosine)
-                    if distance_cosine < 0.3:
-                        verification_text = "ACCESO PERMITIDO"
-                        verification_color = (0, 255, 0)
-                    else:
-                        verification_text = "ACCESO DENEGADO"
-                        verification_color = (0, 0, 255)
-
-                    #dist_text = f"Dist: {verify_result['distance']:.2f} (Thresh: {verify_result['threshold']:.2f})"
-                    #cv2.putText(frame_display, dist_text, (x, y + h + 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, verification_color, 2)
-                except Exception as e_verify:
-                    print(f"Error durante la verificación: {e_verify}")
-                    verification_text = "Error Verificando"
-                    verification_color = (0, 165, 255)
-
-                cv2.putText(frame_display, verification_text, (x, y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, verification_color, 2)
-
+            # ... dibujado de rectángulo y texto ...
             cv2.rectangle(frame_display, (x, y), (x+w, y+h), verification_color if verification_active and verification_text else (0,255,0), 2)
             cv2.putText(frame_display, active_model_name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, verification_color if verification_active and verification_text else (0,255,0), 2)
+            # incrementa contador mientras haya detección
+            frame_counter += 1
 
+            cv2.imshow(f"Verificacion Facial DeepFace (q: salir)", frame_display)
+            # cuando lleves suficientes frames, guardas
+            if frame_counter >= frames_to_wait:   
+                data_to_save = {
+                    "nombre": input("Añada el nombre de su clave biométrica:"),
+                    "model": active_model_name,
+                    "embedding": current_embedding_vector.tolist()
+                }
+                try:
+                    with open(KNOWN_EMBEDDING_FILE, 'r+') as f:
+                        existing = json.load(f)
+                        existing[data_to_save.get("nombre")] = data_to_save       # añades tu objeto anidado
+                        f.seek(0); f.truncate()
+                        json.dump(existing, f, indent=4)
+                    print(f"\n¡NUEVO embedding de referencia GUARDADO en '{KNOWN_EMBEDDING_FILE}' usando modelo '{active_model_name}'!")
+                    known_embedding_vector = current_embedding_vector
+                    known_model_name = active_model_name
+                    verification_active = True
+                    print("La verificación facial está ahora activa con el nuevo embedding.")
+                    save_message_display_time = time.time() + 3
+                    # resetea el contador para la próxima vez
+                    frame_counter = 0
+                    break
+                except IOError as e_io:
+                    print(f"\nError al guardar el archivo JSON: {e_io}")
+        else:
+            # si no detectas rostro, reinicia el contador
+            frame_counter = 0
+
+       
     except ValueError:
         verification_text = ""
         pass
@@ -122,41 +120,6 @@ while True:
 
     if key == ord('q'):
         break
-    elif key == ord('s'):
-        if current_embedding_vector is not None:
-            if time.time() - last_saved_time > 2:
-                data_to_save = {
-                    "nombre": input("Añada el nombre de su clave biométrica:"),
-                    "model": active_model_name,
-                    "embedding": current_embedding_vector.tolist()
-                }
-                try:
-                    with open(KNOWN_EMBEDDING_FILE, 'w') as f:
-                        json.dump(data_to_save, f, indent=4)
-                    print(f"\n¡NUEVO embedding de referencia GUARDADO en '{KNOWN_EMBEDDING_FILE}' usando modelo '{active_model_name}'!")
-
-                    known_embedding_vector = current_embedding_vector
-                    known_model_name = active_model_name
-                    verification_active = True
-                    print("La verificación facial está ahora activa con el nuevo embedding.")
-
-                    last_saved_time = time.time()
-                    save_message_display_time = time.time() + 3
-                except IOError as e_io:
-                    print(f"\nError al guardar el archivo JSON: {e_io}")
-            else:
-                print("\nEsperando para evitar guardado múltiple...")
-        else:
-            print("\nNo hay rostro detectado para guardar el embedding. Intenta de nuevo.")
-            save_message_display_time = time.time() + 2
-
-    if save_message_display_time > time.time():
-        (text_width, text_height), _ = cv2.getTextSize("REFERENCIA GUARDADA", cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)
-        text_x = frame_display.shape[1] - text_width - 10
-        cv2.putText(frame_display, "REFERENCIA GUARDADA", (text_x, 60 if verification_active else 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,0,255), 2)
-
-
-    cv2.imshow(f"Verificacion Facial DeepFace (q: salir, s: {'actualizar' if verification_active else 'guardar'} ref.)", frame_display)
 
 print("\nCerrando...")
 cap.release()
