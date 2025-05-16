@@ -5,7 +5,7 @@ pub struct ChcaCha20 {
 }
 
 impl ChcaCha20 {
-    pub fn cifrar(&mut self,plain: Vec<u32>, password:String ) -> Vec<u32> {
+    pub fn cifrar(&mut self, plain: Vec<u32>, password:String ) -> Vec<u32> {
         let mut counter_tmp = self.counter;
         let mut cypher: Vec<u32> = Vec::new();
 

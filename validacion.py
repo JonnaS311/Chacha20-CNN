@@ -11,7 +11,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # --- Configuración ---
 DEFAULT_MODEL_NAME = 'Facenet'
 CAMERA_INDEX = 0
-KNOWN_EMBEDDING_FILE = "mi_cara_embedding.json"
+KNOWN_EMBEDDING_FILE = "embedding.json"
 DISTANCE_METRIC = 'cosine'
 
 # --- Variables Globales ---
@@ -23,8 +23,10 @@ verification_active = False
 try:
     with open(KNOWN_EMBEDDING_FILE, 'r') as f:
         data = json.load(f)
-        known_embedding_vector = np.array(data['embedding'])
-        known_model_name = data['model']
+        nombre = input("como se llama el embedding: ")
+        known_embedding_vector = np.array(data[nombre]['embedding'])
+        print(known_embedding_vector)
+        known_model_name = data[nombre]['model']
         verification_active = True
         print(f"Embedding de referencia cargado desde '{KNOWN_EMBEDDING_FILE}' (Modelo: {known_model_name})")
         print(f"Usando el modelo '{known_model_name}' para detección y verificación.")
@@ -96,6 +98,8 @@ while True:
                     print(" Coseno", distance_cosine)
                     if distance_cosine < 0.3:
                         verification_text = "ACCESO PERMITIDO"
+                        # Correr encriptador
+                        
                         verification_color = (0, 255, 0)
                     else:
                         verification_text = "ACCESO DENEGADO"
