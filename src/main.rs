@@ -1,13 +1,23 @@
 mod cka;
 use std::env;
+use std::error::Error;
 
-fn main() {
+fn main()-> Result<(), Box<dyn Error>>  {
     let args: Vec<String> = env::args().collect();
-    // El primer argumento es la url del main.exe
+    /*
     println!("Número de argumentos: {}", args.len());
     for (i, arg) in args.iter().enumerate() {
         println!("Argumento {}: {}", i, arg);
     }
-    //cka::write_encryp_file("music.mp3", "music_encriptada")?;
-    //Ok(())
+    */
+
+    if args.len() > 4 && &args[1]=="0"{
+        cka::write_encryp_file(&args[2], &args[3], &args[4])?; 
+    }else if  args.len() > 5 && &args[1]=="1" {
+        cka::write_desencryp_file(&args[2], &args[3], &args[4], &args[5])?; 
+    }else {
+        println!("Uso: <modo> <programa> <nombre> <key> <formato>");
+    }
+    
+    Ok(())
 }

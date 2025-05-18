@@ -146,14 +146,14 @@ fn sumar(plain: Vec<u32>, bloque: [[u32; 4]; 4]) -> Vec<u32>{
    cypher
 }
 
-pub fn write_encryp_file(path: &str, name: &str) -> Result<(), std::io::Error>{
+pub fn write_encryp_file(path: &str, name: &str, password: &str) -> Result<(), std::io::Error>{
 
        let data: Vec<u8> = fs::read(path)?;
        let to_32: Vec<u32> = data.iter().map(|&c| c as u32).collect();
    
        let mut cifrador = ChcaCha20 { counter: 0 };
    
-       let datos_cifrados = cifrador.cifrar(to_32.clone(), String::from("unaLlaveSimple"));
+       let datos_cifrados = cifrador.cifrar(to_32.clone(), String::from(password));
    
        //let datos_resueltos:Vec<u32> = cifrador.cifrar(datos_cifrados, String::from("unaLlaveSimple"));
    
@@ -199,7 +199,7 @@ pub fn write_encryp_file(path: &str, name: &str) -> Result<(), std::io::Error>{
 }
 
 
-pub fn write_desencryp_file(path: &str, name: &str) -> Result<(), std::io::Error>{
+pub fn write_desencryp_file(path: &str, name: &str, password: &str, formato: &str) -> Result<(), std::io::Error>{
     let mut data: Vec<u8> = fs::read(path)?;
     data.drain(0..10);
 
@@ -207,7 +207,7 @@ pub fn write_desencryp_file(path: &str, name: &str) -> Result<(), std::io::Error
 
     let mut descifrador = ChcaCha20 { counter: 0 };
 
-    let datos_descifrados = descifrador.cifrar(to_32.clone(), String::from("unaLlaveSimple"));
+    let datos_descifrados = descifrador.cifrar(to_32.clone(), String::from(password));
 
     // Convertir el Vec<u32> en Vec<u8>
     let byte_data: Vec<u8> = datos_descifrados
@@ -215,7 +215,7 @@ pub fn write_desencryp_file(path: &str, name: &str) -> Result<(), std::io::Error
     .map(|&num| num as u8) // Convertir cada u32 en un array de 4 bytes
     .collect();
 
-    fs::write(format!("./{}.mp3",name), byte_data)?;
+    fs::write(format!("./{}.{}",name, formato), byte_data)?;
 
     Ok(())
 }

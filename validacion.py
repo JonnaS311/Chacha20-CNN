@@ -4,9 +4,11 @@ import numpy as np
 import time
 import json
 import os
+import subprocess
 from scipy.spatial.distance import cosine # type: ignore
+from compresion import compress_embedding
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 # --- Configuración ---
 DEFAULT_MODEL_NAME = 'Facenet'
@@ -95,11 +97,14 @@ while True:
     
                     distance_cosine = cosine(current_embedding_vector, known_embedding_vector) 
                     
-                    print(" Coseno", distance_cosine)
                     if distance_cosine < 0.3:
                         verification_text = "ACCESO PERMITIDO"
                         # Correr encriptador
-                        
+                        print("acesso concedido")
+                        key = compress_embedding(known_embedding_vector)
+                        print(len(key))
+                        resultado = subprocess.run(['./main.exe','hola', 'mundo'], capture_output=True, text=True)
+                        print(resultado.stdout)
                         verification_color = (0, 255, 0)
                     else:
                         verification_text = "ACCESO DENEGADO"
@@ -128,10 +133,6 @@ while True:
 
     if key == ord('q'):
         break
-    if save_message_display_time > time.time():
-        (text_width, text_height), _ = cv2.getTextSize("REFERENCIA GUARDADA", cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)
-        text_x = frame_display.shape[1] - text_width - 10
-        cv2.putText(frame_display, "REFERENCIA GUARDADA", (text_x, 60 if verification_active else 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,0,255), 2)
 
 
     cv2.imshow(f"Verificacion Facial DeepFace (q: salir)", frame_display)
