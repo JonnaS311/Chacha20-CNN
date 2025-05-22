@@ -48,6 +48,6 @@ Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo `LICENSE` 
 
 ## 👤 Autor
 
-Desarrollado por [Jonnathan Sotelo](https://github.com/JonnaS311).
-Proyecto de Redes de comunicación III
-Docente: Octavio José Salcedo Parra
+Desarrollado por [Jonnathan Sotelo](https://github.com/JonnaS311).  
+Proyecto de Redes de comunicación III  
+Docente: Octavio José Salcedo Parra  
