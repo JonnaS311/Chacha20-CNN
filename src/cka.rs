@@ -173,7 +173,7 @@ pub fn write_encryp_file(path: &str, name: &str, password: &str) -> Result<(), s
        byte_data.insert(0, 0x00);
        byte_data.insert(1, 0x63);
        byte_data.insert(2, 0x68);
-       byte_data.insert(3, 0x6B);
+       byte_data.insert(3, 0x61);
        byte_data.insert(4, 0x00);
        byte_data.insert(5, match cadena.get(index+1){
            Some(x) => *x,

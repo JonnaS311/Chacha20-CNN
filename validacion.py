@@ -16,10 +16,12 @@ CAMERA_INDEX = 0
 KNOWN_EMBEDDING_FILE = "embedding.json"
 DISTANCE_METRIC = 'cosine'
 
+
 # --- Variables Globales ---
 known_embedding_vector = None
 known_model_name = None
 verification_active = False
+validation = True
 
 # --- Cargar Embedding Conocido ---
 try:
@@ -37,10 +39,12 @@ except FileNotFoundError:
     print(f"La verificación facial no estará activa.")
     print(f"Presiona 's' para detectar tu cara y guardar un nuevo embedding de referencia (usando el modelo {DEFAULT_MODEL_NAME}).")
     known_model_name = DEFAULT_MODEL_NAME
+    validation = False
 except Exception as e:
     print(f"Error al cargar el embedding de referencia: {e}")
     print(f"La verificación facial no estará activa.")
     known_model_name = DEFAULT_MODEL_NAME
+    validation = False
 
 active_model_name = known_model_name if known_model_name else DEFAULT_MODEL_NAME
 
@@ -62,7 +66,7 @@ verification_text = ""
 verification_color = (0, 0, 0)
 
 # --- Bucle Principal ---
-while True:
+while True and validation:
     ret, frame = cap.read()
     if not ret:
         print("Error: No se pudo leer el fotograma.")
@@ -103,9 +107,15 @@ while True:
                         print("acesso concedido")
                         key = compress_embedding(known_embedding_vector)
                         print(len(key))
-                        resultado = subprocess.run(['./main.exe','hola', 'mundo'], capture_output=True, text=True)
+                        print(key.hex())
+                       
+                        #resultado = subprocess.run(['./main.exe','0', './requirements.txt', 'pruebaFace', key.hex()], capture_output=True, text=True)
+                        
+                        resultado = subprocess.run(['./main.exe','1', './pruebaFace.cka', 'pruebaFace', key.hex(), 'txt'], capture_output=True, text=True)
+                        
                         print(resultado.stdout)
                         verification_color = (0, 255, 0)
+                        break
                     else:
                         verification_text = "ACCESO DENEGADO"
                         verification_color = (0, 0, 255)
