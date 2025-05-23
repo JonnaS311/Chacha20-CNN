@@ -3,8 +3,8 @@ import flet as ft
 import subprocess
 import sys
 import os
-#from deepFace.generar import generar as genEmb
-#from deepFace.validacion import validacion as valEmb
+# from deepFace.generar import generar as genEmb
+# from deepFace.validacion import validacion as valEmb
 
 # Paleta de colores renovada
 COLORS = {
@@ -13,14 +13,16 @@ COLORS = {
     "oscuro": "#0D1B2A",       # Detalles/accentos (10%)
 }
 
+
 def validacion(e):
     print('here')
-   # valEmb('sotelo', '0', './requirements.txt', 'pruebaGUI2', 1)    
-    
+   # valEmb('sotelo', '0', './requirements.txt', 'pruebaGUI2', 1)
+
 
 def generar(e):
     print("here")
-    #genEmb('ahorasi')
+    # genEmb('ahorasi')
+
 
 def vista_abrir_camara(page):
     filepath = './deepFace/embedding.json'
@@ -33,36 +35,41 @@ def vista_abrir_camara(page):
     page.clean()
     page.add(
         ft.Container(
-            content= ft.Row(controls=[ft.Column([
-                ft.Text("Abrir cámara para capturar embedding", size=20, color=COLORS["oscuro"]),
+            content=ft.Row(controls=[ft.Column([
+                ft.Text("Abrir cámara para capturar embedding",
+                        size=20, color=COLORS["oscuro"]),
+                ft.TextField(label='Nombre del embedding', color=COLORS['oscuro'], border=ft.InputBorder.UNDERLINE,
+                             focused_border_color=COLORS["oscuro"], label_style=ft.TextStyle(color=COLORS['oscuro'])),
+                ft.ElevatedButton(
+                    "Generar embedding",
+                    on_click=generar,
+                    bgcolor=COLORS["oscuro"],
+                    color=COLORS["principal"],
+                    width=220
+                ),
                 ft.ElevatedButton(
                     "Atras",
                     on_click=lambda _: vista_generar_embedding(page),
                     bgcolor=COLORS["oscuro"],
                     color=COLORS["principal"],
                     width=120
-                ),
-                 ft.ElevatedButton(
-                    "Generar embedding",
-                    on_click= generar,
-                    bgcolor=COLORS["oscuro"],
-                    color=COLORS["principal"],
-                    width=220
                 )
             ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER, expand=True),
                 ft.Container(
-                content=ft.Text(f'Embeddings cargados: \n {data}',weight=ft.FontWeight.BOLD),
+                content=ft.Text(
+                    f'Embeddings cargados: \n {data}', weight=ft.FontWeight.BOLD),
                 height=300,  # Altura fija para habilitar el scroll
-                bgcolor= COLORS['secundario'],
+                bgcolor=COLORS['secundario'],
                 padding=10,
-                width= 300
+                width=300
             )
-                
-                ]),
+
+            ]),
             padding=15,
             alignment=ft.alignment.center
         )
     )
+
 
 def vista_generar_embedding(page):
     page.bgcolor = COLORS["principal"]
@@ -90,23 +97,24 @@ def vista_generar_embedding(page):
         )
     )
 
+
 def vista_nombre_embedding(page):
-    
+
     def file_chosen(e: ft.FilePickerResultEvent):
         file_name.value = e.files[0].path
         file_name.update()
-        
+
     def valid_option(e):
         if int(e.control.value) == 1:
             formato.disabled = False
             formato.label_style = ft.TextStyle(color=COLORS['principal'])
-            
+
         else:
             formato.value = None
             formato.disabled = True
             formato.label_style = ft.TextStyle(color=COLORS['oscuro'])
         formato.update()
-    
+
     modo_uso = '''
 # 😎 ¡Bienvenido a la Validación Facial de Archivos!
 
@@ -160,78 +168,94 @@ Esta pantalla te ayuda a verificar tu identidad con tu rostro para luego poder:
 ---
 
 ¡Así de fácil! Ahora puedes usar tu rostro para mantener tus archivos seguros.
-    '''   
+    '''
     file_picker = ft.FilePicker(on_result=file_chosen)
-    formato =  ft.TextField(label="Formato de salida. Ejemplo: mp4, jpg, txt... (solo para desencriptar)", bgcolor=COLORS["secundario"],
-                             color=COLORS["principal"], disabled=True,  border=ft.InputBorder.UNDERLINE, 
-                             focused_border_color= COLORS["oscuro"],label_style= ft.TextStyle(color=COLORS['oscuro']))
+    formato = ft.TextField(label="Formato de salida. Ejemplo: mp4, jpg, txt... (solo para desencriptar)", bgcolor=COLORS["secundario"],
+                           color=COLORS["principal"], disabled=True,  border=ft.InputBorder.UNDERLINE,
+                           focused_border_color=COLORS["oscuro"], label_style=ft.TextStyle(color=COLORS['oscuro']))
     page.overlay.append(file_picker)
     page.bgcolor = COLORS["principal"]
     page.clean()
-    
+
     # Controls de flet
     file_name = ft.Text(color=COLORS["oscuro"])
     cg = ft.RadioGroup(
         content=ft.Column(
             [
-                ft.Radio(value="0", label="Encriptar", fill_color = COLORS["oscuro"], label_style= ft.TextStyle(color = COLORS["oscuro"])),
-                ft.Radio(value="1", label="Desencriptar", fill_color = COLORS["oscuro"], label_style= ft.TextStyle(color = COLORS["oscuro"])),
+                ft.Radio(value="0", label="Encriptar", fill_color=COLORS["oscuro"], label_style=ft.TextStyle(
+                    color=COLORS["oscuro"])),
+                ft.Radio(value="1", label="Desencriptar", fill_color=COLORS["oscuro"], label_style=ft.TextStyle(
+                    color=COLORS["oscuro"])),
             ]
         ),
-        on_change = valid_option
+        on_change=valid_option
     )
-    
+
     page.add(
         ft.Container(
             content=ft.Row([
-                 ft.Column([
-                ft.Text("Validación del Embedding", size=20, color=COLORS["oscuro"]),
-                ft.TextField(label="Nombre del Embedding de la persona", bgcolor=COLORS["secundario"], color=COLORS["principal"]
-                             ,border=ft.InputBorder.UNDERLINE, focused_border_color= COLORS["oscuro"], label_style= ft.TextStyle(color=COLORS['principal'])),
-                ft.TextField(label="Nombre del archivo de salida", bgcolor=COLORS["secundario"],color=COLORS["principal"],
-                             border=ft.InputBorder.UNDERLINE, focused_border_color= COLORS["oscuro"],label_style= ft.TextStyle(color=COLORS['principal'])),
-                ft.ElevatedButton("Choose files...", icon=ft.Icons.UPLOAD_FILE, 
-                                bgcolor=COLORS["oscuro"], color=COLORS["principal"],
-                                on_click=lambda _: file_picker.pick_files(allow_multiple=False)),
-                file_name,
-                cg,
-                formato,
-                ft.Row([
-                    ft.ElevatedButton(
-                        "Volver",
-                        on_click=lambda _: vista_generar_embedding(page),
-                        bgcolor=COLORS["oscuro"],
-                        color=COLORS["principal"],
-                        width=120
-                    ),
-                    ft.ElevatedButton(
-                        "Verificar",
-                        on_click= validacion,
-                        bgcolor=COLORS["oscuro"],
-                        color=COLORS["principal"],
-                        width=120
-                    )
+                ft.Column([
+                    ft.Text("Validación del Embedding",
+                            size=20, color=COLORS["oscuro"]),
+                    ft.TextField(label="Nombre del Embedding de la persona", bgcolor=COLORS["secundario"], color=COLORS["principal"],
+                                 border=ft.InputBorder.UNDERLINE, focused_border_color=COLORS["oscuro"], label_style=ft.TextStyle(color=COLORS['principal'])),
+                    ft.TextField(label="Nombre del archivo de salida", bgcolor=COLORS["secundario"], color=COLORS["principal"],
+                                 border=ft.InputBorder.UNDERLINE, focused_border_color=COLORS["oscuro"], label_style=ft.TextStyle(color=COLORS['principal'])),
+                    ft.ElevatedButton("Choose files...", icon=ft.Icons.UPLOAD_FILE,
+                                      bgcolor=COLORS["oscuro"], color=COLORS["principal"],
+                                      on_click=lambda _: file_picker.pick_files(allow_multiple=False)),
+                    file_name,
+                    cg,
+                    formato,
+                    ft.Row([
+                        ft.ElevatedButton(
+                            "Volver",
+                            on_click=lambda _: vista_generar_embedding(page),
+                            bgcolor=COLORS["oscuro"],
+                            color=COLORS["principal"],
+                            width=120
+                        ),
+                        ft.ElevatedButton(
+                            "Verificar",
+                            on_click=validacion,
+                            bgcolor=COLORS["oscuro"],
+                            color=COLORS["principal"],
+                            width=120
+                        )
                     ], alignment=ft.MainAxisAlignment.CENTER),
-            ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER, expand=True),
-                 ft.Container(content = ft.Column([ft.Markdown(modo_uso, selectable=True, extension_set=ft.MarkdownExtensionSet.GITHUB_WEB)],
-                           alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER, 
-                           scroll= ft.ScrollMode.ADAPTIVE, tight= True, width=550, height=300), bgcolor= COLORS["secundario"], padding=20)
-                 
-                ]),
+                ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER, expand=True),
+                ft.Container(
+                    content=ft.Column(
+                        [ft.Markdown(modo_uso, selectable=True,
+                                     extension_set=ft.MarkdownExtensionSet.GITHUB_WEB)],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        scroll=ft.ScrollMode.ADAPTIVE,
+                        tight=True,
+                        width=550,
+                        height=300),
+                    bgcolor=COLORS["secundario"], padding=20)
+
+            ]),
             padding=15,
             alignment=ft.alignment.center
         )
     )
+    page.add(
+        ft.Container(ft.Text("Proyecto redes de Comunicación III - Jonnathan Sotelo (20202020040)",
+                     color=COLORS['principal']), alignment=ft.Alignment(-1, 1), bgcolor=COLORS["oscuro"])
+    )
     page.update()
 
+
 def main(page: ft.Page):
-    page.title = "Embeddings App"
+    page.title = "Simulador Embeddings-chacha20 App"
     page.window_width = 400
     page.window_height = 300
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
 
     vista_generar_embedding(page)
-    page.add(ft.Text("Proyecto redes de Comunicación III - Jonnathan Sotelo (20202020040)", color=COLORS['oscuro']))
+
 
 ft.app(target=main)
