@@ -73,11 +73,82 @@ def menu_gen_embedding(page):
     )
 
 
+def menu_eliminar_emb(page):
+    page.bgcolor = COLORS["principal"]
+    page.clean()
+    # Cargar contenido del archivo
+    archivo = "./deepFace/embedding.json"
+
+    def eliminar(e, nombre):
+        try:
+            with open(archivo, "r+", encoding="utf-8") as f:
+                # Leer el contenido JSON
+                contenido = json.load(f)
+
+                # Eliminar la clave si existe
+                if nombre in contenido:
+                    del contenido[nombre]
+
+                # Volver al inicio
+                f.seek(0)
+
+                # Escribir el nuevo contenido
+                json.dump(contenido, f, ensure_ascii=False, indent=4)
+
+                # Truncar para eliminar residuos si el nuevo contenido es más corto
+                f.truncate()
+            menu_principal(page)
+        except Exception as e:
+            contenido = f"No se pudo leer el archivo:\n{e}"
+    try:
+        with open(archivo, "r", encoding="utf-8") as f:
+            contenido = json.load(f)
+
+    except Exception as e:
+        contenido = f"No se pudo leer el archivo:\n{e}"
+
+    cg = ft.RadioGroup(
+        content=ft.Column(
+            [
+                ft.Radio(value=x, label=x, fill_color=COLORS["oscuro"], label_style=ft.TextStyle(
+                    color=COLORS["oscuro"])) for x in contenido.keys()
+            ],
+        )
+    )
+    page.add(ft.Container(
+        content=ft.Column([
+            ft.Text("Selecciona el Embbeding a eliminar",
+                    size=20, weight=ft.FontWeight.BOLD, color=COLORS['oscuro']),
+            ft.Container(cg,
+                         alignment=ft.alignment.center),
+            ft.ElevatedButton(
+                "Eliminar Embedding",
+                on_click=lambda e: eliminar(e, cg.value),
+                bgcolor=COLORS["oscuro"],
+                color=COLORS["principal"],
+                width=320
+            ),
+            ft.ElevatedButton(
+                "Volver",
+                on_click=lambda _: menu_principal(page),
+                bgcolor=COLORS["oscuro"],
+                color=COLORS["principal"],
+                width=320
+            )
+        ], alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            expand=True),
+        padding=15,
+        alignment=ft.alignment.center,
+        expand=True
+    ))
+
+
 def menu_principal(page):
     page.bgcolor = COLORS["principal"]
     page.clean()
     # Cargar contenido del archivo
-    archivo = "./deepFace/embedding.json"  # Cambia por el nombre de tu archivo
+    archivo = "./deepFace/embedding.json"
     try:
         with open(archivo, "r", encoding="utf-8") as f:
             contenido = f.read()
@@ -109,21 +180,41 @@ def menu_principal(page):
         ft.Container(
             content=ft.Column([ft.Text('Simulador Embeddings-chacha20 App', color=COLORS["oscuro"], size=20, weight=ft.FontWeight.BOLD),
                                ft.Row([
-                                   ft.ElevatedButton(
-                                       "Generar un embedding",
-                                       on_click=lambda _: menu_gen_embedding(
-                                           page),
-                                       bgcolor=COLORS["oscuro"],
-                                       color=COLORS["principal"],
-                                       width=320
-                                   ),
-                                   ft.ElevatedButton(
-                                       "Encriptar/Desencriptar archivo",
-                                       on_click=lambda _: menu_encriptacion(
-                                           page),
-                                       bgcolor=COLORS["oscuro"],
-                                       color=COLORS["principal"],
-                                       width=320
+                                   ft.Column(
+                                       controls=[
+                                           # Fila superior: 2 columnas
+                                           ft.Row(
+                                               controls=[
+                                                   ft.ElevatedButton(
+                                                       "Generar un embedding",
+                                                       on_click=lambda _: menu_gen_embedding(
+                                                           page),
+                                                       bgcolor=COLORS["oscuro"],
+                                                       color=COLORS["principal"],
+                                                       width=320
+                                                   ),
+                                                   ft.ElevatedButton(
+                                                       "Encriptar/Desencriptar archivo",
+                                                       on_click=lambda _: menu_encriptacion(
+                                                           page),
+                                                       bgcolor=COLORS["oscuro"],
+                                                       color=COLORS["principal"],
+                                                       width=320
+                                                   )
+                                               ]
+                                           ),
+                                           # Fila inferior: 1 columna que ocupa todo el ancho (suma de 2 columnas)
+                                           ft.Container(
+                                               content=ft.ElevatedButton(
+                                                   "Eliminar un embedding",
+                                                   on_click=lambda _: menu_eliminar_emb(
+                                                       page),
+                                                   bgcolor=COLORS["oscuro"],
+                                                   color=COLORS["principal"],
+                                                   width=320
+                                               ), alignment=ft.alignment.center
+                                           )
+                                       ]
                                    ),
                                    scrollable_container
                                ], alignment=ft.MainAxisAlignment.CENTER)]),
