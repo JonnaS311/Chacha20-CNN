@@ -1,26 +1,26 @@
-use  std::fs;
+use std::fs;
 
 pub struct ChcaCha20 {
-    pub counter:usize
+    pub counter: usize,
 }
 
 impl ChcaCha20 {
-    pub fn cifrar(&mut self, plain: Vec<u32>, password:String ) -> Vec<u32> {
+    pub fn cifrar(&mut self, plain: Vec<u32>, password: String) -> Vec<u32> {
         let mut counter_tmp = self.counter;
         let mut cypher: Vec<u32> = Vec::new();
 
         // obtenemos la cantidad de rondas de encriptación que debe hacer
         let iteraciones = plain.len().wrapping_div_euclid(16);
 
-        for k in 0..iteraciones  {
+        for k in 0..iteraciones {
             // creamos el bloque en esa iteración
             let bloque: [[u32; 4]; 4] = chacha(password.clone(), counter_tmp);
-            counter_tmp = counter_tmp.wrapping_add(1);   
-            let mut tmp = sumar(plain[k*16..(k+1)*16].to_vec(), bloque);
+            counter_tmp = counter_tmp.wrapping_add(1);
+            let mut tmp = sumar(plain[k * 16..(k + 1) * 16].to_vec(), bloque);
             // añadimos el bloque cifrado
             cypher.append(&mut tmp);
         }
-        cypher.append(&mut plain[(iteraciones)*16..plain.len()].to_vec());
+        cypher.append(&mut plain[(iteraciones) * 16..plain.len()].to_vec());
 
         cypher
     }
@@ -134,72 +134,87 @@ fn quarter_round(a: &mut u32, b: &mut u32, c: &mut u32, d: &mut u32) {
     rotar(*b, 7);
 }
 
-fn sumar(plain: Vec<u32>, bloque: [[u32; 4]; 4]) -> Vec<u32>{
+fn sumar(plain: Vec<u32>, bloque: [[u32; 4]; 4]) -> Vec<u32> {
     let mut contador: usize = 0;
-    let mut cypher:Vec<u32> = Vec::new();
+    let mut cypher: Vec<u32> = Vec::new();
     for i in bloque {
         for j in i {
             cypher.push(plain[contador] as u32 ^ j);
             contador += 1;
         }
     }
-   cypher
+    cypher
 }
 
-pub fn write_encryp_file(path: &str, name: &str, password: &str) -> Result<(), std::io::Error>{
+pub fn write_encryp_file(path: &str, name: &str, password: &str) -> Result<(), std::io::Error> {
+    let data: Vec<u8> = fs::read(path)?;
+    let to_32: Vec<u32> = data.iter().map(|&c| c as u32).collect();
 
-       let data: Vec<u8> = fs::read(path)?;
-       let to_32: Vec<u32> = data.iter().map(|&c| c as u32).collect();
-   
-       let mut cifrador = ChcaCha20 { counter: 0 };
-   
-       let datos_cifrados = cifrador.cifrar(to_32.clone(), String::from(password));
-   
-       //let datos_resueltos:Vec<u32> = cifrador.cifrar(datos_cifrados, String::from("unaLlaveSimple"));
-   
-       // Convertir el Vec<u32> en Vec<u8>
-       let mut byte_data: Vec<u8> = datos_cifrados
-           .iter()
-           .map(|&num| num as u8) // Convertir cada u32 en un array de 4 bytes
-           .collect();
-   
-       let Some((index,_)) = path.char_indices().find(|(_, c)| *c == '.') else {
-           panic!("not exist format on that file");
-       };
-   
-       let cadena = path.as_bytes();
-   
-       // Encabezado del formato .cka 
-       byte_data.insert(0, 0x00);
-       byte_data.insert(1, 0x63);
-       byte_data.insert(2, 0x68);
-       byte_data.insert(3, 0x61);
-       byte_data.insert(4, 0x00);
-       byte_data.insert(5, match cadena.get(index+1){
-           Some(x) => *x,
-           None => 0x00
-       });
-       byte_data.insert(6, match cadena.get(index+2){
-           Some(x) => *x,
-           None => 0x00
-       });
-       byte_data.insert(7, match cadena.get(index+3){
-           Some(x) => *x,
-           None => 0x00
-       });
-       byte_data.insert(8, match cadena.get(index+4){
-           Some(x) => *x,
-           None => 0x00
-       });
-       byte_data.insert(9, 0x00);
-   
-       fs::write(format!("./{}.cka",name), byte_data)?;
+    let mut cifrador = ChcaCha20 { counter: 0 };
 
-       Ok(())
+    let datos_cifrados = cifrador.cifrar(to_32.clone(), String::from(password));
+
+    //let datos_resueltos:Vec<u32> = cifrador.cifrar(datos_cifrados, String::from("unaLlaveSimple"));
+
+    // Convertir el Vec<u32> en Vec<u8>
+    let mut byte_data: Vec<u8> = datos_cifrados
+        .iter()
+        .map(|&num| num as u8) // Convertir cada u32 en un array de 4 bytes
+        .collect();
+
+    let Some((index, _)) = path.char_indices().find(|(_, c)| *c == '.') else {
+        panic!("no existe formato en ese archivo, usa un archivo con FORMATO");
+    };
+
+    let cadena = path.as_bytes();
+
+    // Encabezado del formato .cka
+    byte_data.insert(0, 0x00);
+    byte_data.insert(1, 0x63);
+    byte_data.insert(2, 0x68);
+    byte_data.insert(3, 0x61);
+    byte_data.insert(4, 0x00);
+    byte_data.insert(
+        5,
+        match cadena.get(index + 1) {
+            Some(x) => *x,
+            None => 0x00,
+        },
+    );
+    byte_data.insert(
+        6,
+        match cadena.get(index + 2) {
+            Some(x) => *x,
+            None => 0x00,
+        },
+    );
+    byte_data.insert(
+        7,
+        match cadena.get(index + 3) {
+            Some(x) => *x,
+            None => 0x00,
+        },
+    );
+    byte_data.insert(
+        8,
+        match cadena.get(index + 4) {
+            Some(x) => *x,
+            None => 0x00,
+        },
+    );
+    byte_data.insert(9, 0x00);
+
+    fs::write(format!("./{}.cka", name), byte_data)?;
+
+    Ok(())
 }
 
-
-pub fn write_desencryp_file(path: &str, name: &str, password: &str, formato: &str) -> Result<(), std::io::Error>{
+pub fn write_desencryp_file(
+    path: &str,
+    name: &str,
+    password: &str,
+    formato: &str,
+) -> Result<(), std::io::Error> {
     let mut data: Vec<u8> = fs::read(path)?;
     data.drain(0..10);
 
@@ -211,11 +226,11 @@ pub fn write_desencryp_file(path: &str, name: &str, password: &str, formato: &st
 
     // Convertir el Vec<u32> en Vec<u8>
     let byte_data: Vec<u8> = datos_descifrados
-    .iter()
-    .map(|&num| num as u8) // Convertir cada u32 en un array de 4 bytes
-    .collect();
+        .iter()
+        .map(|&num| num as u8) // Convertir cada u32 en un array de 4 bytes
+        .collect();
 
-    fs::write(format!("./{}.{}",name, formato), byte_data)?;
+    fs::write(format!("./{}.{}", name, formato), byte_data)?;
 
     Ok(())
 }
