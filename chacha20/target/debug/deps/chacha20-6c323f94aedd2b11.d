@@ -1,0 +1,11 @@
+D:\Chacha20-CNN\chacha20\target\debug\deps\libchacha20-6c323f94aedd2b11.rmeta: C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\lib.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\legacy.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\xchacha.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends\soft.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends\avx2.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends\sse2.rs
+
+D:\Chacha20-CNN\chacha20\target\debug\deps\chacha20-6c323f94aedd2b11.d: C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\lib.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\legacy.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\xchacha.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends\soft.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends\avx2.rs C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends\sse2.rs
+
+C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\lib.rs:
+C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends.rs:
+C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\legacy.rs:
+C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\xchacha.rs:
+C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends\soft.rs:
+C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends\avx2.rs:
+C:\Users\jhony\.cargo\registry\src\index.crates.io-6f17d22bba15001f\chacha20-0.9.1\src\backends\sse2.rs:

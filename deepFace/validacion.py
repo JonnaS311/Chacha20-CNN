@@ -261,4 +261,4 @@ def validacion(person_name_to_verify, main_exe_mode, main_exe_arg1, main_exe_arg
     print("Programa finalizado.")
 
 if __name__ == '__main__':
-    pass
+    pass 
