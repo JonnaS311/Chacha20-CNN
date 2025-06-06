@@ -378,7 +378,7 @@ Esta pantalla te ayuda a verificar tu identidad con tu rostro para luego poder:
 
 
 def main(page: ft.Page):
-    page.title = "Simulador Embeddings-chacha20 App"
+    page.title = "Embeddings-chacha20 App"
     page.window_width = 400
     page.window_height = 300
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
